@@ -27,6 +27,10 @@ $car3 = new LaVoiture();
 //echo LaVoiture::MOTORISATION;
 var_dump($car1,$car2, $car3);
 
+echo 'notre voiture $car1 :'."{$car1->getMarque()}<br>";
+echo 'notre voiture $car2 :'."{$car2->getMarque()}<br>";
+
+
 ?>
 </body>
 </html>
