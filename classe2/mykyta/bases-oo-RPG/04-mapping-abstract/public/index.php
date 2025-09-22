@@ -21,11 +21,13 @@ require_once RACINE_PATH."/model/ArticleMapping.php";
 <p></p>
 <?php
 $article1 = new ArticleMapping([
-        "id" => 7,
-        "plouc" => "lala",
-        "article_title"=> "hjgjyfyjutuyt",
-        "article_slug"=> "DKEFFFFguyty-sdgffeg-zertreyt",
+    "id" => 7,
+    "plouc" => "lala",
+    "article_title"=> "hjgjyfyjutuyt",
+    "article_slug"=> "DKEFFFFguyty-sdgffeg-zertreyt",
 ]);
+
+var_dump($_POST);
 ?>
 </body>
 </html>

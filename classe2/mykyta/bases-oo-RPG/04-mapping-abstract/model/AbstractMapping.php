@@ -21,10 +21,14 @@ abstract class AbstractMapping
 
             // création du nom du setter
             $setterName = "set".str_replace("_","",ucwords($setter, '_'));
-            echo "$setterName => $value <br>";
+            //echo "$setterName => $value <br>";
+            if (method_exists($this,$setterName)){
+                echo "$setterName => $value <br>";
+            }else{
+            //echo "$setterName => $value <br>";
+            }
         }
     }
-
 
 
     // transforme un titre en slug, sera hérité
