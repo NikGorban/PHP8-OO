@@ -14,11 +14,38 @@ class ArticleMapping extends AbstractMapping {
     // constructeur et hydratation dans AbstractMapping
 
 
-    // getters et setters
+    // GETTERS 
     public function getId(): ?int
     {
         return $this->id;
     }
+
+    public function getArticleTitle(): ?string
+    {
+        return $this->article_title;
+    }
+
+    public function getArticleSlug(): ?string
+    {
+        return $this->article_slug;
+    }
+
+    public function getArticleText(): ?string
+    {
+        return $this->article_text;
+    }
+
+    public function getArticleVisibility(): bool|int|null
+    {
+        return $this->article_visibility;
+    }
+
+    public function getArticleDate(): ?string
+    {
+        return $this->article_date;
+    }
+
+        //SETTERS
 
     public function setId(?int $id):void
     {
@@ -26,11 +53,6 @@ class ArticleMapping extends AbstractMapping {
         if($id<=0)
             throw new Exception("L'id doit être positif");
         $this->id = $id;
-    }
-
-    public function getArticleTitle(): ?string
-    {
-        return $this->article_title;
     }
 
     // string de 120 max et 6 minimum sans tags, sans espace devant et derrière, caractères spéciaux encodés
@@ -48,11 +70,6 @@ class ArticleMapping extends AbstractMapping {
         $this->article_title = $titleClean;
     }
 
-    public function getArticleSlug(): ?string
-    {
-        return $this->article_slug;
-    }
-
     // string de 125 max et 6 minimum sans tags, sans espace devant et derrière, caractères spéciaux encodés
     public function setArticleSlug(?string $article_slug): void
     {
@@ -68,11 +85,6 @@ class ArticleMapping extends AbstractMapping {
         $this->article_slug = $article_slug;
     }
 
-    public function getArticleText(): ?string
-    {
-        return $this->article_text;
-    }
-
     // minimum 20 caractères, sans tags, sans espace devant et derrière, caractères spéciaux encodés
     public function setArticleText(?string $article_text): void
     {
@@ -86,11 +98,6 @@ class ArticleMapping extends AbstractMapping {
         $this->article_text = $article_text;
     }
 
-    public function getArticleDate(): ?string
-    {
-        return $this->article_date;
-    }
-
     // doit être une date valide si remplie sinon erreur
     public function setArticleDate(?string $article_date): void
     {
@@ -101,12 +108,7 @@ class ArticleMapping extends AbstractMapping {
             throw new Exception("La date n'est pas valide !");
 
         $this->article_date = date("Y-m-d H:i:s",$formatDate);
-    }
-
-    public function getArticleVisibility(): bool|int|null
-    {
-        return $this->article_visibility;
-    }
+    } 
 
     // si int convertir en bool, si bool, attribuer la valeur
     public function setArticleVisibility(bool|int|null $article_visibility): void
@@ -116,6 +118,4 @@ class ArticleMapping extends AbstractMapping {
 
             $this->article_visibility = $article_visibility;
     }
-
-
 }

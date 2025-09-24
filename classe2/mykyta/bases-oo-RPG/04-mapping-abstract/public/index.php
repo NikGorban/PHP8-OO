@@ -46,20 +46,29 @@ if(!empty($_POST)){
         $articleInsert->setArticleSlug($slug);
         // exercice 1 Insérez l'article dans la table article
         
-        $sql = "INSERT INTO article (article_title, article_slug, article_text, article_date, article_visibility) 
+        $sql = "INSERT INTO article (article_title,
+                                    article_slug, 
+                                    article_text,
+                                    article_date,
+                                    article_visibility) 
                 VALUES (:article_title, :article_slug, :article_text, :article_date, :article_visibility)";
 
-        $stmt = $connectPDO->prepare($sql);
-        $stmt->bindValue(':article_title', $articleInsert->getArticleTitle(), PDO::PARAM_STR);
-        $stmt->bindValue(':article_slug', $articleInsert->getArticleSlug(), PDO::PARAM_STR);
-        $stmt->bindValue(':article_text', $articleInsert->getArticleText(), PDO::PARAM_STR);
-        $stmt->bindValue(':article_date', $articleInsert->getArticleDate(), PDO::PARAM_STR);
-        $stmt->bindValue(':article_visibility', $articleInsert->getArticleVisibility(), PDO::PARAM_BOOL);
-        $stmt->execute();   
+        $stmt = $connectPDO->prepare("
+            INSERT INTO `article` (`article_title`,
+                                 `article_slug`,
+                                 `article_text`,
+                                 `article_date`,
+                                 `article_visibility`
+                                 ) VALUES 
+                                       (:title,:slug,:text,:date,:visibility);
+        ");
+        $stmt->bindValue("title", $articleInsert->getArticleTitle());
+        $stmt->bindValue("slug", $articleInsert->getArticleSlug());
+        $stmt->bindValue("text", $articleInsert->getArticleText());
+        $stmt->bindValue("date", $articleInsert->getArticleDate());
+        $stmt->bindValue("visibility", $articleInsert->getArticleVisibility());
 
-        
-        
-        
+        $stmt->execute();        
 
     }catch(Exception $e){
         echo $e->getMessage();
@@ -96,22 +105,23 @@ if(!empty($_POST)){
 <h2>Nous allons créer l'hydratation et le constructeur dans la classe abstraite</h2>
 <p>Exemple de fonctionnement</p>
 <?php
-$article1 = new ArticleMapping([
-        "id" => 7,
-        "plouc" => "lala",
-        "article_title"=> "hjgjyfyjutuyt",
-        "article_slug"=> "DKEFFFFguyty-sdgffeg-zertreyt",
-]);
-var_dump($article1);
+// $article1 = new ArticleMapping([
+//         "id" => 7,
+//         "plouc" => "lala",
+//         "article_title"=> "hjgjyfyjutuyt",
+//         "article_slug"=> "DKEFFFFguyty-sdgffeg-zertreyt",
+// ]);
+// var_dump($article1);
 ?>
 <h2>Nos articles</h2>
 <p>Affichage de nos articles en utilisant les getters des objets de type ArticleMapping</p>
 <?php
-$nbArticles = count($resultats);
-if ($nbArticles < 1){
-    echo "<h3>Pas encore d'article</h3>"
-}
+// $nbArticles = count($resultats);
+// if ($nbArticles < 1){
+//     echo "<h3>Pas encore d'article</h3>"
+// };
 ?>
+
 <p>Créez un article via ce formulaire</p>
 
 
