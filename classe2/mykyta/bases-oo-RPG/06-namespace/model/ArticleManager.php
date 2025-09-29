@@ -24,6 +24,10 @@ class ArticleManager implements ManagerInterface, CrudInterface
     public function readById(int $id): bool|AbstractMapping
     {
         // TODO: Implement readById() method.
+        $sql = "SELECT * FROM `article` WHERE `id`=:id";
+        $query = $this->db->prepare($sql);
+        $query->bindValue(':id',$id);
+        $query->execute();
     }
 
     // récupération de tous nos articles
@@ -45,11 +49,23 @@ class ArticleManager implements ManagerInterface, CrudInterface
     public function update(int $id, AbstractMapping $data)
     {
         // TODO: Implement update() method.
+        $sql = "UPDATE `article` SET 
+                `article_title`=:article_title,
+                `article_slug`=:article_slug,
+                `article_text`=:article_text,
+                `article_date`=:article_date,
+                `article_visibility`=:article_visibility
+                WHERE `id`=:id";
+        //???
     }
 
     public function delete(int $id)
     {
         // TODO: Implement delete() method.
+        $sql = "DELETE FROM `article` WHERE `id`=:id";
+        $query = $this->db->prepare($sql);
+        $query->bindValue(':id',$id);
+        $query->execute();
     }
 
     /*
