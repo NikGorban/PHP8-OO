@@ -1,4 +1,8 @@
 <?php
+// création du namespace
+namespace model;
+
+use PDO;
 
 class ArticleManager implements ManagerInterface, CrudInterface
 {
