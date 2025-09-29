@@ -19,6 +19,16 @@ class ArticleManager implements ManagerInterface, CrudInterface
     public function create(AbstractMapping $data)
     {
         // TODO: Implement create() method.
+        $sql = "INSERT INTO article (article_title, article_slug, article_text, article_date, article_visibility)
+            VALUES (?,?,?,?,?);";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            $data->getArticleTitle(),
+            $data->slugify($data->getArticleTitle()),
+            $data->getArticleText(),
+            $data->getArticleDate(),
+            $data->getArticleVisibility()
+        ]);
     }
 
     public function readById(int $id): bool|AbstractMapping
@@ -48,24 +58,24 @@ class ArticleManager implements ManagerInterface, CrudInterface
 
     public function update(int $id, AbstractMapping $data)
     {
-        // TODO: Implement update() method.
-        $sql = "UPDATE `article` SET 
-                `article_title`=:article_title,
-                `article_slug`=:article_slug,
-                `article_text`=:article_text,
-                `article_date`=:article_date,
-                `article_visibility`=:article_visibility
-                WHERE `id`=:id";
-        //???
-    }
+        $sql = "UPDATE `article` SET article_title = ?, article_slug = ?, article_text = ?, article_date = ?, article_visibility = ? WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            $data->getArticleTitle(),
+            $data->slugify($data->getArticleTitle()),
+            $data->getArticleText(),
+            $data->getArticleDate(),
+            $data->getArticleVisibility(), 
+            $id
+            ]);
+        }
 
     public function delete(int $id)
     {
         // TODO: Implement delete() method.
-        $sql = "DELETE FROM `article` WHERE `id`=:id";
-        $query = $this->db->prepare($sql);
-        $query->bindValue(':id',$id);
-        $query->execute();
+        $sql = "DELETE FROM `article` WHERE id=?";
+        $query = $this->db->prepare($sql);        
+        $query->execute([$id]);
     }
 
     /*
