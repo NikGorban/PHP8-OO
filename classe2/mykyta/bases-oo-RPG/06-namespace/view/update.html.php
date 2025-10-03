@@ -26,7 +26,7 @@
         <label for="article_text">Texte de l'article</label><br>
         <textarea name="article_text" id="article_text" cols="30" rows="10" required><?= htmlspecialchars($article->getArticleText()) ?></textarea><br><br>
         <label for="article_date">Date de l'article</label><br>
-        <input type="datetime-local" name="article_date" id="article_date" value="<?= $article->getArticleDate()->format('Y-m-d\TH:i') ?>" required><br><br>
+        <input type="datetime-local" name="article_date" id="article_date" value="<?= $article->getArticleDate() ?>" required><br><br>
 
         <label for="article_visibility">Visibilité de l'article</label><br>
         <select name="article_visibility" id="article_visibility" required>

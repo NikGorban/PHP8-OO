@@ -45,7 +45,22 @@ class ArticleManager implements ManagerInterface, CrudInterface
 
     public function readById(int $id): bool|AbstractMapping
     {
-        return false;
+        $sql = "SELECT * FROM 'article' WhERE 'id' = ?";
+        $prepare = $this->db->prepare($sql);
+        $prepare ->bindParam(1,$id, PDO::PARAM_INT);
+        
+        try{
+            $prepare->execute();
+
+            if ($prepare->rowCount()!==1)
+                return false;
+            $result = $prepare->fetch(PDO::FETCH_ASSOC);
+            $article = new ArticleMapping($result);
+            $prepare ->closeCursor();
+            return $article;
+        }catch (Exception $e){
+             echo $e->getMessage();
+        };
     }
 
     // récupération de tous nos articles
