@@ -49,7 +49,7 @@
                 <td><?=$item->getArticleDate()?></td>
                 <td><?=$item->getArticleVisibility()?></td>
                 <td><a href="?p=update&id=<?=$item->getId()?>">update</a></td>
-                <td><a href="?p=delete&id=<?=$item->getId()?>">delete</a></td>
+                <td><a href="#" onclick="let a=confirm('Voulez-vous vraiment supprimer l\'article <?=$item->getArticleSlug()?>'); if(a){ document.location ='?p=delete&id=<?=$item->getId()?>';}">delete</a></td>
             </tr>
             <?php
                 endforeach;
