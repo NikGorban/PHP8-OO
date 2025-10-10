@@ -23,6 +23,11 @@ switch ($_GET['p']) {
             try {
                 // utilisation des setters
                 $newArticle = new ArticleMapping($_POST);
+                // si on a des catégories
+                if (isset($_POST['categ']) && !empty($_POST['categ'])) {
+                    // on ajoute le tableau d'id de catégorie à l'article
+                    $newArticle->setCategory($_POST['categ']);
+                }
                 // pas de faute création du slug
                 // qui est importé par 'use SlugifyTrait'
                 // dans ArticleManager, on décode l'htmspecialchars
@@ -48,6 +53,9 @@ switch ($_GET['p']) {
                 die($e->getMessage());
             }
         }
+        // récupération des catégories pour le formulaire
+        $nosCategory = $CategoryManager->readAll();
+
         include RACINE_PATH . "/view/article.create.html.php";
 
         break;
@@ -87,6 +95,8 @@ switch ($_GET['p']) {
                 $message = "Cet article n'existe plus";
                 include RACINE_PATH . "/view/404.html.php";
             } else {
+                // récupération des catégories pour le formulaire
+                $nosCategory = $CategoryManager->readAll();
                 include RACINE_PATH . "/view/article.update.html.php";
             }
         else:

@@ -30,6 +30,7 @@ class ArticleManager implements ManagerInterface, CrudInterface
     {
         $sql = "INSERT INTO `article` (`article_title`, `article_slug`, `article_text`, `article_visibility`) VALUES (?,?,?,?)";
         $prepare = $this->db->prepare($sql);
+
         try {
             $prepare->execute([
                 $data->getArticleTitle(),
@@ -37,6 +38,20 @@ class ArticleManager implements ManagerInterface, CrudInterface
                 $data->getArticleText(),
                 $data->getArticleVisibility()
             ]);
+            // si on a coché des catégories
+            if(isset($_POST['categ']) && is_array($_POST['categ']) && count($_POST['categ'])>0){
+                // on récupère l'id de l'article inséré
+                $lastId = $this->db->lastInsertId();
+                // on prépare la requête d'insertion dans la table de liaison
+                $sqlHas = "INSERT INTO `article_has_category` (`article_id`, `category_id`) VALUES (?,?)";
+                $prepareHas = $this->db->prepare($sqlHas);
+
+                // on boucle sur les catégories cochées
+                foreach ($_POST['categ'] as $categId){
+                    // on insère la liaison article - catégorie
+                    $prepareHas->execute([$lastId,$categId]);
+                }
+            }
             return true;
         }catch (Exception $e){
             return $e->getMessage();
@@ -44,9 +59,17 @@ class ArticleManager implements ManagerInterface, CrudInterface
 
     }
 
+
     public function readById(int $id): bool|AbstractMapping
     {
-        $sql = "SELECT * FROM `article` WHERE `id` = ?";
+        $sql = "SELECT a.*,
+                    GROUP_CONCAT(h.`category_id`) as category_id
+                FROM `article` a
+                    LEFT JOIN `article_has_category` h ON a.`id` = h.`article_id`
+                WHERE a.`id` = ?
+                GROUP BY a.`id` ";
+
+
         $prepare = $this->db->prepare($sql);
         $prepare->bindValue(1,$id,PDO::PARAM_INT);
         try{
@@ -56,6 +79,12 @@ class ArticleManager implements ManagerInterface, CrudInterface
                 return false;
             // on a un article
             $result = $prepare->fetch(PDO::FETCH_ASSOC);
+            // si on a des catégories
+            if(!is_null($result['category_id'])){
+                // on crée un tableau en divisant par les ','
+                $categId = explode(',',$result['category_id']);
+                $result['category'] = $categId;
+            }
             // création de l'instance de type ArticleMapping
             $article = new ArticleMapping($result);
             $prepare->closeCursor();
@@ -68,7 +97,19 @@ class ArticleManager implements ManagerInterface, CrudInterface
 
     public function readBySlug(string $slug): bool|AbstractMapping
     {
-        $sql = "SELECT * FROM `article` WHERE `article_slug` = ? AND `article_visibility`=1";
+        $sql = "SELECT a.*, 
+                    GROUP_CONCAT(c.`category_name` SEPARATOR '|||') as category_name,
+                    GROUP_CONCAT(c.`category_slug`SEPARATOR '|||') as category_slug
+
+                FROM `article` a
+            
+                LEFT JOIN `article_has_category` h
+                    ON h.`article_id` = a.`id`
+                
+                LEFT JOIN `category` c    
+                    ON h.`category_id` = c.`id`
+                WHERE `article_slug` = ? AND `article_visibility`=1
+                GROUP BY a.`id` ";
         $prepare = $this->db->prepare($sql);
         $prepare->bindValue(1,$slug);
         try{
@@ -80,6 +121,27 @@ class ArticleManager implements ManagerInterface, CrudInterface
             $result = $prepare->fetch(PDO::FETCH_ASSOC);
             // création de l'instance de type ArticleMapping
             $article = new ArticleMapping($result);
+            // s'il y a une ou plusieurs catégories
+            if(!is_null($result['category_name'])&&!is_null($result['category_slug'])){
+                // création d'un tableau (1 entrée minimum)
+                // en divisant par les SEPARATOR de MySQL
+                $name = explode('|||',$result['category_name']);
+                $slug = explode('|||',$result['category_slug']);
+                // on compte le nombre de category
+                $countCateg = count($name);
+                // création du tableau de catégorie,
+                $categList=[];
+                // on va créer une boucle tant qu'on a des catégories
+                for($i=0;$i<$countCateg;$i++){
+                    $categName = $name[$i];
+                    $categSlug = $slug[$i];
+                    $categList[] = new CategoryMapping([
+                        'category_name'=>$categName,
+                        'category_slug'=>$categSlug
+                    ]);
+                }
+                $article->setCategory($categList);
+            }
             $prepare->closeCursor();
             return $article;
 
@@ -128,6 +190,21 @@ class ArticleManager implements ManagerInterface, CrudInterface
         $prepare->bindValue("visibility", $data->getArticleVisibility(), PDO::PARAM_INT);
         try{
             $prepare->execute();
+            // on supprime les anciennes catégories
+            $sqlDel = "DELETE FROM `article_has_category` WHERE `article_id`=?";
+            $prepareDel = $this->db->prepare($sqlDel);
+            $prepareDel->execute([$id]);
+            // si on a coché des catégories
+            if(isset($_POST['categ']) && is_array($_POST['categ']) && count($_POST['categ'])>0){
+                // on prépare la requête d'insertion dans la table de liaison
+                $sqlHas = "INSERT INTO `article_has_category` (`article_id`, `category_id`) VALUES (?,?)";
+                $prepareHas = $this->db->prepare($sqlHas);
+                // on boucle sur les catégories cochées
+                foreach ($_POST['categ'] as $categId){
+                    // on insère la liaison article - catégorie
+                    $prepareHas->execute([$id,$categId]);
+                }
+            }
             return true;
         }catch (Exception $e){
             return $e->getMessage();
@@ -138,9 +215,15 @@ class ArticleManager implements ManagerInterface, CrudInterface
 
     public function delete(int $id)
     {
+        // on supprime l'article
         $sql = "DELETE FROM `article` WHERE `id`=?";
         $prepare = $this->db->prepare($sql);
+        // on supprime les anciennes catégories (si pas de cascade delete)
+        $sqlDel = "DELETE FROM `article_has_category` WHERE `article_id`=?";
+        $prepareDel = $this->db->prepare($sqlDel);
+
         try{
+            $prepareDel->execute([$id]);
             $prepare->execute([$id]);
             return true;
         }catch(Exception $e){
